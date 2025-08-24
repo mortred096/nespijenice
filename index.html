@@ -1,177 +1,255 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bs">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>... . .-.. . -- .-</title>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
-<style>
-  body {
-    margin: 0;
-    background-color: #fff5f8;
-    height: 100vh;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-family: 'Fredoka One', sans-serif;
-    position: relative;
-  }
+  <meta charset="UTF-8">
+  <title>Latice Cvijeta + Poruka</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #fbc2eb, #a6c1ee);
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      position: relative;
+    }
 
-  /* Animated background blobs */
-  .blob {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(60px);
-    opacity: 0.6;
-    animation: float 15s infinite alternate ease-in-out;
-    z-index: 0;
-  }
-  .blob1 {
-    width: 300px; height: 300px;
-    background: #ff7ca8;
-    top: -100px; left: -100px;
-    animation-duration: 20s;
-  }
-  .blob2 {
-    width: 250px; height: 250px;
-    background: #dfb6c4;
-    bottom: -80px; right: -80px;
-    animation-duration: 18s;
-  }
-  .blob3 {
-    width: 200px; height: 200px;
-    background: #ff597d;
-    top: 50%; left: 70%;
-    animation-duration: 22s;
-  }
-  @keyframes float {
-    0% { transform: translate(0,0) scale(1); }
-    100% { transform: translate(50px, -50px) scale(1.2); }
-  }
+    /* Game container */
+    .game-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 1;
+    }
 
-  /* Date display */
-  #date {
-    font-size: 3em;
-    color: #f93f6d;
-    z-index: 2;
-    text-shadow: 2px 2px 5px rgba(255,255,255,0.7);
-    position: absolute;
-    top: 20%;
-  }
+    h1 {
+      font-size: 2em;
+      margin-bottom: 20px;
+      color: #c2185b;
+      opacity: 0;
+      transform: scale(0.8);
+      transition: all 1s ease;
+    }
+    h1.show { opacity: 1; transform: scale(1); }
 
-  /* Cat section */
-  .cat-container {
-    display: none;
-    flex-direction: row;
-    align-items: flex-start;
-    z-index: 2;
-    opacity: 0;
-    transform: translateY(100px);
-    animation: slideUp 1s ease-out forwards;
-  }
-  @keyframes slideUp {
-    to { transform: translateY(0); opacity: 1; }
-  }
+    svg {
+      cursor: pointer;
+      opacity: 0;
+      transform: scale(0.5);
+      transition: all 1s ease;
+    }
+    svg.show { opacity: 1; transform: scale(1); }
 
-  .message {
-    font-size: 2.5em;
-    color: #ff3366;
-    margin-right: 20px;
-    max-width: 250px;
-    text-align: right;
-    text-shadow: 2px 2px 5px rgba(255,255,255,0.7);
-    animation: pulse 1.5s infinite alternate ease-in-out;
-  }
-  @keyframes pulse {
-    0% { transform: scale(1); }
-    100% { transform: scale(1.05); }
-  }
+    .petal { transition: transform 0.8s ease, opacity 0.8s ease; }
+    .fall { transform: translateY(150px) rotate(90deg); opacity: 0; }
 
-  .cat img {
-    width: 200px;
-    animation: wave 1s infinite alternate ease-in-out;
-  }
-  @keyframes wave {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(5deg); }
-  }
+    #text {
+      font-size: 1.5em;
+      margin-top: 20px;
+      color: #6a1b9a;
+      opacity: 0;
+      transition: opacity 0.5s;
+    }
 
-  /* White fade overlay */
-  .fade {
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgb(255, 197, 223);
-    z-index: 3;
-    opacity: 0;
-    pointer-events: none;
-  }
-  .fade.show {
-    animation: fadeIn 0.8s forwards;
-  }
-  @keyframes fadeIn {
-    to { opacity: 1; }
-  }
-</style>
+    #retry {
+      display: none;
+      margin-top: 20px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      background: #ff69b4;
+      color: white;
+      font-size: 1em;
+      cursor: pointer;
+    }
+    #retry:hover { background: #e91e63; }
+
+    /* Pointer arrow */
+    .pointer {
+      position: absolute;
+      bottom: 120px;
+      animation: bounce 1s infinite alternate;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-weight: bold;
+      color: #444;
+    }
+    .pointer svg {
+      width: 40px; height: 40px;
+      transform: rotate(-90deg);
+      fill: #444;
+    }
+    @keyframes bounce { from {transform: translateY(0);} to {transform: translateY(-10px);} }
+
+    /* Styled message box */
+    .message-box {
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%) scale(0);
+      background: rgba(255,255,255,0.95);
+      padding: 15px 20px;
+      border-radius: 15px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+      width: 180px;
+      text-align: center;
+      opacity: 0;
+      transition: transform 0.5s ease, opacity 0.5s ease;
+    }
+    .message-box.show {
+      opacity: 1;
+      transform: translateY(-50%) scale(1);
+    }
+
+    .message-box h2 {
+      font-size: 1.1em;
+      margin-bottom: 8px;
+      color: #c2185b;
+    }
+
+    .message-box textarea {
+      width: 100%;
+      height: 60px;
+      padding: 6px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      resize: none;
+      font-size: 0.9em;
+    }
+
+    .message-box button {
+      margin-top: 8px;
+      padding: 6px 16px;
+      border: none;
+      border-radius: 8px;
+      background-color: #ff69b4;
+      color: white;
+      font-size: 0.9em;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .message-box button:hover { background: #e91e63; }
+
+    .thankyou {
+      display: none;
+      margin-top: 8px;
+      color: #6a1b9a;
+      font-weight: bold;
+      font-size: 0.9em;
+    }
+  </style>
 </head>
 <body>
-  <!-- Background blobs -->
-  <div class="blob blob1"></div>
-  <div class="blob blob2"></div>
-  <div class="blob blob3"></div>
-
-  <!-- Date display -->
-  <div id="date">Loading...</div>
-
-  <!-- Cat with message -->
-  <div class="cat-container">
-    <div class="message">Selema mua duša</div>
-    <div class="cat">
-      <img src="cat1.gif" alt="Cute cat raising paw">
+  <!-- Game -->
+  <div class="game-container">
+    <h1 id="title">Koj pojce saka :p</h1>
+    <svg id="flower" width="200" height="200" viewBox="0 0 200 200">
+      <circle cx="100" cy="100" r="25" fill="#FFD700" />
+    </svg>
+    <div id="text"></div>
+    <button id="retry">Probaj jope</button>
+    <div id="pointer" class="pointer">
+      <svg viewBox="0 0 24 24"><path d="M12 2v20M5 15l7 7 7-7"/></svg>
+      Klikni
     </div>
   </div>
 
-  
-  <div class="fade"></div>
+  <!-- Popup Message box -->
+  <div class="message-box" id="messageBox">
+    <h2>Comment?? </h2>
+    <form id="commentForm" action="https://formspree.io/f/xyzdgnvj" method="POST">
+      <textarea name="comment" placeholder="Napišaj nešto..." required></textarea><br>
+      <button type="submit">Prati</button>
+    </form>
+<div class="thankyou">&lt;3 Prateb</div>
+  </div>
 
-<script>
-  const startDate = new Date(2024, 2, 23); // 23 March 2024
-  const endDate = new Date(2025, 7, 9);   // 9 August 2025
-  let currentDate = new Date(startDate);
-  let speed = 150; // faster counting
-  const dateEl = document.getElementById('date');
-  const catContainer = document.querySelector('.cat-container');
-  const fadeEl = document.querySelector('.fade');
+  <script>
+    // Flower game
+    const svg = document.getElementById("flower");
+    const text = document.getElementById("text");
+    const retry = document.getElementById("retry");
+    const title = document.getElementById("title");
+    const pointer = document.getElementById("pointer");
+    const messageBox = document.getElementById("messageBox");
 
-  function formatDate(date) {
-    let d = date.getDate().toString().padStart(2, '0');
-    let m = (date.getMonth() + 1).toString().padStart(2, '0');
-    let y = date.getFullYear();
-    return `${d}.${m}.${y}`;
-  }
+    let phrases = ["Ja tebe", "Ti mene"];
+    let phraseIndex = 0;
+    let petals = [];
 
-  function step() {
-    dateEl.textContent = formatDate(currentDate);
+    function initFlower() {
+      svg.innerHTML = '<circle cx="100" cy="100" r="25" fill="#FFD700" />';
+      text.textContent = "";
+      text.style.opacity = 0;
+      retry.style.display = "none";
+      phraseIndex = 0;
+      petals = [];
 
-    if (currentDate.getTime() < endDate.getTime()) {
-      currentDate.setDate(currentDate.getDate() + 1);
-
-      let remaining = (endDate - currentDate) / (1000 * 60 * 60 * 24);
-      if (speed > 30 && remaining > 100) speed *= 0.95; 
-      else if (remaining < 50) speed *= 1.05;
-
-      setTimeout(step, speed);
-    } else {
-      fadeEl.classList.add('show');
-      setTimeout(() => {
-        dateEl.style.display = 'none';
-        fadeEl.style.display = 'none';
-        catContainer.style.display = 'flex';
-      }, 800);
+      let petalCount = Math.floor(Math.random() * 6) + 5;
+      for (let i = 0; i < petalCount; i++) {
+        const angle = (i / petalCount) * Math.PI * 2;
+        const x = 100 + Math.cos(angle) * 60;
+        const y = 100 + Math.sin(angle) * 60;
+        let petal = document.createElementNS("http://www.w3.org/2000/svg","circle");
+        petal.setAttribute("cx", x);
+        petal.setAttribute("cy", y);
+        petal.setAttribute("r", 25);
+        petal.setAttribute("fill", "#FF69B4");
+        petal.classList.add("petal");
+        svg.appendChild(petal);
+        petals.push(petal);
+      }
     }
-  }
 
-  step();
-</script>
+    setTimeout(() => {
+      title.classList.add("show");
+      svg.classList.add("show");
+      pointer.style.display = "flex";
+    }, 1500);
+
+    // Popup message box after 3s delay
+    setTimeout(() => { messageBox.classList.add("show"); }, 3000);
+
+    svg.addEventListener("click", () => {
+      if (petals.length === 0) return;
+      pointer.style.display = "none";
+      text.style.opacity = 1;
+
+      let petal = petals.pop();
+      petal.classList.add("fall");
+
+      phraseIndex = 1 - phraseIndex;
+      text.textContent = phrases[phraseIndex];
+
+      if (petals.length === 0) retry.style.display = "inline-block";
+    });
+
+    retry.addEventListener("click", () => {
+      initFlower();
+      pointer.style.display = "flex";
+    });
+
+    initFlower();
+
+    // Form logic
+    const form = document.getElementById('commentForm');
+    const thankyou = messageBox.querySelector('.thankyou');
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const data = new FormData(form);
+      fetch(form.action, { method:'POST', body:data, headers:{'Accept':'application/json'} })
+        .then(response => {
+          if(response.ok) {
+            form.style.display = 'none';
+            thankyou.style.display = 'block';
+          } else { alert('Oops! Došlo je do greške, pokušaj ponovo.'); }
+        })
+        .catch(error => alert('Greška: ' + error));
+    });
+  </script>
 </body>
 </html>
